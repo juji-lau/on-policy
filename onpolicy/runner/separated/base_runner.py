@@ -83,6 +83,11 @@ class Runner(object):
         print("action_space: ", self.envs.action_space)
 
         self.policy = []
+        # NEW:
+        # self.trainer = []
+        print(f"SELF.POLICY: {self.policy} \n (base_runner.py)")
+        # NEW END
+        
         for agent_id in range(self.num_agents):
             share_observation_space = self.envs.share_observation_space[agent_id] if self.use_centralized_V else self.envs.observation_space[agent_id]
             # policy network
@@ -92,11 +97,20 @@ class Runner(object):
                         self.envs.action_space[agent_id],
                         device = self.device)
             self.policy.append(po)
-
+        # NEW:
+        # print(f"SELF.POLICY INITED: {self.policy} \n (base_runner.py)")
+        # NEW END
         if self.model_dir is not None:
             self.restore()
 
         self.trainer = []
+        # NEW:
+        # This issue occurs bc we pass in a model dir
+        # The model dir stores where we save our model after training.
+        # Fix it by calling mpe_env.sh wrapper.
+        # print(f"SELF.TRAINER DECLARED: {self.trainer} \n (base_runner.py)")
+        # NEW END
+        
         self.buffer = []
         for agent_id in range(self.num_agents):
             # algorithm
@@ -109,6 +123,9 @@ class Runner(object):
                                        self.envs.action_space[agent_id])
             self.buffer.append(bu)
             self.trainer.append(tr)
+        # NEW:
+        print(f"SELF.TRAINER INITED: {self.trainer} \n (base_runner.py)")
+        # NEW END
             
     def run(self):
         raise NotImplementedError
@@ -198,6 +215,10 @@ class Runner(object):
             self.policy[agent_id].actor.load_state_dict(policy_actor_state_dict)
             policy_critic_state_dict = torch.load(str(self.model_dir) + '/critic_agent' + str(agent_id) + '.pt')
             self.policy[agent_id].critic.load_state_dict(policy_critic_state_dict)
+            # NEW:
+            print(f"IN RESTORE")
+            print(f"IN RESTORE trainer: {self.trainer} \n (base_runner.py)")
+            # NEW END
             if self.trainer[agent_id]._use_valuenorm:
                 policy_vnrom_state_dict = torch.load(str(self.model_dir) + '/vnrom_agent' + str(agent_id) + '.pt')
                 self.trainer[agent_id].value_normalizer.load_state_dict(policy_vnrom_state_dict)
