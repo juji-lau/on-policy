@@ -4,6 +4,11 @@ from onpolicy.envs.mpe.scenario import BaseScenario
 
 
 class Scenario(BaseScenario):
+    # NEW:
+    def __init__(self):
+        self.reward_type = "individual" #default, will be overriden by MPEEnv()
+    # NEW END
+    
     def make_world(self, args):
         world = World()
         world.world_length = args.episode_length
@@ -68,20 +73,79 @@ class Scenario(BaseScenario):
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         dist_min = agent1.size + agent2.size
         return True if dist < dist_min else False
+    
+    # OLD:
+    # def reward(self, agent, world):
+    #     # Agents are rewarded based on minimum agent distance to each landmark, penalized for collisions
+    #     rew = 0
+    #     for l in world.landmarks:
+    #         dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos)))
+    #                  for a in world.agents]
+    #         rew -= min(dists)
 
+    #     if agent.collide:
+    #         for a in world.agents:
+    #             if self.is_collision(a, agent):
+    #                 rew -= 1
+    #     return rew
+
+    # NEW:
     def reward(self, agent, world):
-        # Agents are rewarded based on minimum agent distance to each landmark, penalized for collisions
-        rew = 0
+        """Implements individual, shared, or partially shared reward structure."""
+        # Compute landmark coverage reward
+        landmark_rewards = []
         for l in world.landmarks:
-            dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos)))
-                     for a in world.agents]
-            rew -= min(dists)
-
+            dists = [np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]
+            landmark_rewards.append(-min(dists))  # Closer to landmark is better
+        
+        # Compute collision penalty
+        collision_penalty = 0
         if agent.collide:
-            for a in world.agents:
-                if self.is_collision(a, agent):
-                    rew -= 1
-        return rew
+            for other in world.agents:
+                if other is not agent and self.is_collision(agent, other):
+                    collision_penalty -= 1
+
+        # Total individual reward
+        indiv_reward = sum(landmark_rewards) + collision_penalty
+
+        if self.reward_type == "individual":
+            return indiv_reward
+        
+        elif self.reward_type == "shared":
+            # Everyone gets the same reward: average it across agents
+            total_rewards = []
+            for ag in world.agents:
+                reward = 0
+                for l in world.landmarks:
+                    dists = [np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]
+                    reward += -min(dists)
+                if ag.collide:
+                    for other in world.agents:
+                        if other is not ag and self.is_collision(ag, other):
+                            reward -= 1
+                total_rewards.append(reward)
+            return np.mean(total_rewards)
+        
+        elif self.reward_type == "partially_shared":
+            # Blend individual and shared rewards
+            # 0.5 * individual + 0.5 * shared
+            total_rewards = []
+            for ag in world.agents:
+                reward = 0
+                for l in world.landmarks:
+                    dists = [np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]
+                    reward += -min(dists)
+                if ag.collide:
+                    for other in world.agents:
+                        if other is not ag and self.is_collision(ag, other):
+                            reward -= 1
+                total_rewards.append(reward)
+            shared_reward = np.mean(total_rewards)
+            return 0.5 * indiv_reward + 0.5 * shared_reward
+
+        else:
+            raise ValueError(f"Unknown reward_type: {self.reward_type}")   
+    # NEW END
 
     def observation(self, agent, world):
         # get positions of all entities in this agent's reference frame
