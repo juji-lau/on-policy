@@ -14,14 +14,25 @@ from onpolicy.envs.env_wrappers import SubprocVecEnv, DummyVecEnv
 """Train script for MPEs."""
 
 def make_train_env(all_args):
+    # NEW:
+    print(all_args)
+    # NEW END
     def get_env_fn(rank):
         def init_env():
             if all_args.env_name == "MPE":
-                env = MPEEnv(all_args)
+                # OLD:
+                # env = MPEEnv(all_args)
+                # NEW
+                env = MPEEnv(all_args, reward_type=all_args.reward_type)  # pass reward_types in here
+                # NEW END
             else:
-                print("Can not support the " +
-                      all_args.env_name + "environment.")
-                raise NotImplementedError
+                # OLD
+                # print("Can not support the " +
+                #       all_args.env_name + "environment.")
+                # raise NotImplementedError
+                # NEW
+                raise(NotImplementedError(f"Cannot support {all_args.env_name} environment.")
+                # NEW END
             env.seed(all_args.seed + rank * 1000)
             return env
         return init_env
@@ -35,14 +46,23 @@ def make_eval_env(all_args):
     def get_env_fn(rank):
         def init_env():
             if all_args.env_name == "MPE":
-                env = MPEEnv(all_args)
+                # OLD
+                # env = MPEEnv(all_args)
+                # NEW:
+                env = MPEEnv(all_args, reward_type=all_args.reward_type)  # pass reward_types in here
+                # NEW END
             else:
-                print("Can not support the " +
-                      all_args.env_name + "environment.")
-                raise NotImplementedError
+                # OLD
+                # print("Can not support the " +
+                #       all_args.env_name + "environment.")
+                # raise NotImplementedError
+                # NEW:
+                raise(NotImplementedError(f"Cannot support {all_args.env_name} environment.")
+                # NEW END
             env.seed(all_args.seed * 50000 + rank * 10000)
             return env
         return init_env
+        
     if all_args.n_eval_rollout_threads == 1:
         return DummyVecEnv([get_env_fn(0)])
     else:
@@ -50,12 +70,15 @@ def make_eval_env(all_args):
 
 
 def parse_args(args, parser):
-    parser.add_argument('--scenario_name', type=str,
-                        default='simple_spread', help="Which scenario to run on")
+    parser.add_argument('--scenario_name', type=str, default='simple_spread', help="Which scenario to run on")
     parser.add_argument("--num_landmarks", type=int, default=3)
-    parser.add_argument('--num_agents', type=int,
-                        default=2, help="number of players")
-
+    parser.add_argument('--num_agents', type=int, default=2, help="number of players")
+    # NEW:
+    parser.add_argument('--reward_type', type=str, default='individual', 
+                        choices = ['individual', 'shared', 'partially_shared'], 
+                        help = "Reward structure to use")
+    # TODO: add original reward type.
+    # NEW END
     all_args = parser.parse_known_args(args)[0]
 
     return all_args
@@ -63,6 +86,10 @@ def parse_args(args, parser):
 
 def main(args):
     parser = get_config()
+    # NEW:
+    run_dir = os.getcwd().split("on-policy")[0] + "/runs"
+    parser.add_argument("--run_dir", type=str, default=run_dir, help="an identifier to distinguish different experiment.")
+    # NEW END
     all_args = parse_args(args, parser)
 
     if all_args.algorithm_name == "rmappo":
@@ -96,8 +123,12 @@ def main(args):
         torch.set_num_threads(all_args.n_training_threads)
 
     # run dir
-    run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
+    # OLD:
+    # run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
                    0] + "/results") / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
+    # NEW:
+    run_dir = Path(f"{run_dir}/{all_args.scenario_name}_{all_args.experiment_name}")
+    # NEW END
     if not run_dir.exists():
         os.makedirs(str(run_dir))
 
