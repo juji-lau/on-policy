@@ -16,6 +16,9 @@ def _t2n(x):
 class MPERunner(Runner):
     def __init__(self, config):
         super(MPERunner, self).__init__(config)
+        # NEW:
+        print(f"SELF.TRAINER: {self.trainer} \n (mpe_runner.py)")
+        # NEW END
        
     def run(self):
         self.warmup()   
