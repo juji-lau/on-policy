@@ -82,7 +82,11 @@ def main(args):
         torch.set_num_threads(all_args.n_training_threads)
 
     # run dir
-    run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0] + "/results") / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
+    # OLD:
+    # run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0] + "/results") / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
+    # NEW:
+    run_dir = Path(os.getcwd().split("on-policy")[0] + "/runs/" + all_args.scenario_name + "_" + all_args.experiment_name)
+    # NEW END
     if not run_dir.exists():
         os.makedirs(str(run_dir))
 
@@ -93,8 +97,14 @@ def main(args):
         if len(exst_run_nums) == 0:
             curr_run = 'run1'
         else:
-            curr_run = 'run%i' % (max(exst_run_nums) + 1)
-    run_dir = run_dir / curr_run
+            # OLD:
+            # curr_run = 'run%i' % (max(exst_run_nums) + 1)    
+    # run_dir = run_dir / curr_run
+    # NEW:
+    run_dir = run_dir / curr_run / "renders"
+    all_args.model_dir = f"{all_args.model_dir}/{curr_run}/models"
+    # NEW END
+    
     if not run_dir.exists():
         os.makedirs(str(run_dir))
 
@@ -119,6 +129,10 @@ def main(args):
         "device": device,
         "run_dir": run_dir
     }
+
+    # NEW:
+    print(f"DEBUGGING ALL ARGS: {all_args.model_dir} \n (render_mpe.py)")
+    # NEW END
 
     # run experiments
     if all_args.share_policy:
