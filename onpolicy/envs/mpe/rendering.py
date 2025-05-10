@@ -19,7 +19,22 @@ except ImportError as e:
     print(suffix="HINT: you can install pyglet directly via 'pip install pyglet'. But if you really just want to install all Gym dependencies and not have to think about it, 'pip install -e .[all]' or 'pip install gym[all]' will do it.")
 
 try:
-    from pyglet.gl import *
+    # from pyglet.gl import *
+
+    # replacing from pyglet.gl import * because this doesn't guarantee that all constants are imported, especially in headless setups
+    from pyglet.gl import (
+        glPushMatrix, glPopMatrix, glTranslatef, glRotatef, glScalef,
+        glEnable, glDisable, glBlendFunc, glBegin, glEnd, glVertex2f, glVertex3f,
+        glColor4f, glLineWidth, glLineStipple, glHint, glClearColor, glClear,
+        glMatrixMode, glLoadIdentity, glOrtho, glViewport,
+
+        GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+        GL_LINE_SMOOTH, GL_LINE_SMOOTH_HINT, GL_NICEST, GL_LINE_STIPPLE,
+        GL_POINTS, GL_QUADS, GL_POLYGON, GL_TRIANGLES, GL_LINE_LOOP, GL_LINE_STRIP,
+        GL_LINES, GL_COLOR_BUFFER_BIT, GL_MODELVIEW
+    )
+
+
 except ImportError as e:
     print(prefix="Error occured while running `from pyglet.gl import *`",suffix="HINT: make sure you have OpenGL install. On Ubuntu, you can run 'apt-get install python-opengl'. If you're running on a server, you may need a virtual frame buffer; something like this should work: 'xvfb-run -s \"-screen 0 1400x900x24\" python <your_script.py>'")
 

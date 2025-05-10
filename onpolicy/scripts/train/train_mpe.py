@@ -31,7 +31,7 @@ def make_train_env(all_args):
                 #       all_args.env_name + "environment.")
                 # raise NotImplementedError
                 # NEW
-                raise(NotImplementedError(f"Cannot support {all_args.env_name} environment.")
+                raise NotImplementedError(f"Cannot support {all_args.env_name} environment.")
                 # NEW END
             env.seed(all_args.seed + rank * 1000)
             return env
@@ -57,7 +57,7 @@ def make_eval_env(all_args):
                 #       all_args.env_name + "environment.")
                 # raise NotImplementedError
                 # NEW:
-                raise(NotImplementedError(f"Cannot support {all_args.env_name} environment.")
+                raise NotImplementedError(f"Cannot support {all_args.env_name} environment.")
                 # NEW END
             env.seed(all_args.seed * 50000 + rank * 10000)
             return env
@@ -124,8 +124,7 @@ def main(args):
 
     # run dir
     # OLD:
-    # run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[
-                   0] + "/results") / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
+    # run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0] + "/results") / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
     # NEW:
     run_dir = Path(f"{run_dir}/{all_args.scenario_name}_{all_args.experiment_name}")
     # NEW END
@@ -157,6 +156,8 @@ def main(args):
         run_dir = run_dir / curr_run
         if not run_dir.exists():
             os.makedirs(str(run_dir))
+
+    print(f"Saved at {run_dir}.")
 
     setproctitle.setproctitle(str(all_args.algorithm_name) + "-" + \
         str(all_args.env_name) + "-" + str(all_args.experiment_name) + "@" + str(all_args.user_name))

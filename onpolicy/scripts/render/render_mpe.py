@@ -15,10 +15,11 @@ from onpolicy.envs.mpe.MPE_env import MPEEnv
 from onpolicy.envs.env_wrappers import SubprocVecEnv, DummyVecEnv
 
 def make_render_env(all_args):
+    print(f"Render environment )
     def get_env_fn(rank):
         def init_env():
             if all_args.env_name == "MPE":
-                env = MPEEnv(all_args)
+                env = MPEEnv(all_args, all_args.reward_type)
             else:
                 print("Can not support the " +
                       all_args.env_name + "environment.")
@@ -32,16 +33,28 @@ def make_render_env(all_args):
         return SubprocVecEnv([get_env_fn(i) for i in range(all_args.n_rollout_threads)])
 
 def parse_args(args, parser):
-    parser.add_argument('--scenario_name', type=str,
-                        default='simple_spread', help="Which scenario to run on")
+    parser.add_argument('--scenario_name', type=str, default='simple_spread', help="Which scenario to run on")
     parser.add_argument("--num_landmarks", type=int, default=3)
-    parser.add_argument('--num_agents', type=int,
-                        default=2, help="number of players")
-
+    parser.add_argument('--num_agents', type=int, default=2, help="number of players")
+    parser.add_argument('--reward_type', type=str, default='individual', choices = ['individual', 'shared', 'partially_shared'], help = "Reward structure to use")
+    parser.add_argument('--run_number', type=int, default="-1")
     all_args = parser.parse_known_args(args)[0]
-
+    
     return all_args
 
+def calculate_run_number(run_dir):
+    if not run_dir.exists():
+        run_number = 1
+    else:
+        exst_run_nums = [int(str(folder.name).split('run')[1]) for folder in run_dir.iterdir() if str(folder.name).startswith('run')]
+        if len(exst_run_nums) == 0:
+            run_number = 1
+        else:
+            # OLD:
+            # curr_run = 'run%i' % (max(exst_run_nums) + 1) 
+            # NEW:
+            run_number = (max(exst_run_nums))
+    return run_number
 
 def main(args):
     parser = get_config()
@@ -81,7 +94,6 @@ def main(args):
         device = torch.device("cpu")
         torch.set_num_threads(all_args.n_training_threads)
 
-    # run dir
     # OLD:
     # run_dir = Path(os.path.split(os.path.dirname(os.path.abspath(__file__)))[0] + "/results") / all_args.env_name / all_args.scenario_name / all_args.algorithm_name / all_args.experiment_name
     # NEW:
@@ -90,15 +102,12 @@ def main(args):
     if not run_dir.exists():
         os.makedirs(str(run_dir))
 
-    if not run_dir.exists():
-        curr_run = 'run1'
+    if all_args.run_number == -1 or all_args.run_number > calculate_run_number(run_dir):
+        run_number = calculate_run_number(run_dir)
     else:
-        exst_run_nums = [int(str(folder.name).split('run')[1]) for folder in run_dir.iterdir() if str(folder.name).startswith('run')]
-        if len(exst_run_nums) == 0:
-            curr_run = 'run1'
-        else:
-            # OLD:
-            # curr_run = 'run%i' % (max(exst_run_nums) + 1)    
+        run_number = all_args.run_number
+    curr_run = f"run{run_number}"
+
     # run_dir = run_dir / curr_run
     # NEW:
     run_dir = run_dir / curr_run / "renders"

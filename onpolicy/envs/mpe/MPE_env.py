@@ -2,7 +2,7 @@ from .environment import MultiAgentEnv
 from .scenarios import load
 
 
-def MPEEnv(args):
+def MPEEnv(args, reward_type="individual"):
     '''
     Creates a MultiAgentEnv object as env. This can be used similar to a gym
     environment by calling env.reset() and env.step().
