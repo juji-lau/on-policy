@@ -2,7 +2,7 @@
 Juji Lau, Sanjana Nandi 
 
 ### Purpose
-We modified the [official MAPPO implementation]{https://github.com/marlbenchmark/on-policy/} to test the effects of different reward schemes - individual, partially shared, and shared on the learning dynamics and group behavior of agents in a Simple Spread environment. 
+We modified the [official MAPPO implementation](https://github.com/marlbenchmark/on-policy/) to test the effects of different reward schemes - individual, partially shared, and shared on the learning dynamics and group behavior of agents in a Simple Spread environment. 
 
 ### Installation and Running the Code
 To run this project, download and open `shared_rewards_proj.ipynb` in Google Colab. **Do not try to run the `shared_rewards_proj.ipynb` in on-policy.** 
