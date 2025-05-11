@@ -75,9 +75,8 @@ def parse_args(args, parser):
     parser.add_argument('--num_agents', type=int, default=2, help="number of players")
     # NEW:
     parser.add_argument('--reward_type', type=str, default='individual', 
-                        choices = ['individual', 'shared', 'partially_shared'], 
+                        choices = ['individual', 'shared', 'partially_shared', 'original'], 
                         help = "Reward structure to use")
-    # TODO: add original reward type.
     # NEW END
     all_args = parser.parse_known_args(args)[0]
 

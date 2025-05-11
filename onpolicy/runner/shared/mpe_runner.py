@@ -68,11 +68,14 @@ class MPERunner(Runner):
                                 idv_rews.append(info[agent_id]['individual_reward'])
                         agent_k = 'agent%i/individual_rewards' % agent_id
                         env_infos[agent_k] = idv_rews
-
+                
                 train_infos["average_episode_rewards"] = np.mean(self.buffer.rewards) * self.episode_length
                 print("average episode rewards is {}".format(train_infos["average_episode_rewards"]))
                 self.log_train(train_infos, total_num_steps)
                 self.log_env(env_infos, total_num_steps)
+
+                if "dist_entropy" in train_infos:
+                    print("policy entropy is {}".format(train_infos["dist_entropy"]))
 
             # eval
             if episode % self.eval_interval == 0 and self.use_eval:

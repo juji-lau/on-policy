@@ -6,7 +6,7 @@ from onpolicy.envs.mpe.scenario import BaseScenario
 class Scenario(BaseScenario):
     # NEW:
     def __init__(self):
-        self.reward_type = "individual" #default, will be overriden by MPEEnv()
+        self.reward_type = "individual" # default, will be overriden by MPEEnv()
     # NEW END
     
     def make_world(self, args):
@@ -16,7 +16,7 @@ class Scenario(BaseScenario):
         world.dim_c = 2
         world.num_agents = args.num_agents
         world.num_landmarks = args.num_landmarks  # 3
-        world.collaborative = True
+        world.collaborative = False
         # add agents
         world.agents = [Agent() for i in range(world.num_agents)]
         for i, agent in enumerate(world.agents):
@@ -30,6 +30,7 @@ class Scenario(BaseScenario):
             landmark.name = 'landmark %d' % i
             landmark.collide = False
             landmark.movable = False
+        world.prev_total_distance = None
         # make initial conditions
         self.reset_world(world)
         return world
@@ -92,57 +93,103 @@ class Scenario(BaseScenario):
     # NEW:
     def reward(self, agent, world):
         """Implements individual, shared, or partially shared reward structure."""
-        # Compute landmark coverage reward
-        landmark_rewards = []
-        for l in world.landmarks:
-            dists = [np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]
-            landmark_rewards.append(-min(dists))  # Closer to landmark is better
-        
-        # Compute collision penalty
-        collision_penalty = 0
-        if agent.collide:
-            for other in world.agents:
-                if other is not agent and self.is_collision(agent, other):
-                    collision_penalty -= 1
+        def individual():
+            ideal_dist = 0.25
+            tolerance = 0.1
+            bonus = 1.0
+            penalty_close = -1.0
+            penalty_far = -0.5
+            collision_penalty = -1.0
 
-        # Total individual reward
-        indiv_reward = sum(landmark_rewards) + collision_penalty
+            # Find nearest landmark
+            distances = [np.linalg.norm(agent.state.p_pos - l.state.p_pos) for l in world.landmarks]
+            min_dist = min(distances)
+
+            # Reward shaping
+            if abs(min_dist - ideal_dist) < tolerance:
+                proximity_reward = bonus
+            elif min_dist < ideal_dist:
+                proximity_reward = penalty_close
+            else:
+                proximity_reward = penalty_far
+
+            # Penalize collisions
+            collision_loss = 0
+            if agent.collide:
+                for other in world.agents:
+                    if other is not agent and self.is_collision(agent, other):
+                        collision_loss += collision_penalty
+
+            return proximity_reward + collision_loss
+
+        def shared():
+            total_dist = 0
+            for l in world.landmarks:
+                for a in world.agents:
+                    total_dist += np.linalg.norm(a.state.p_pos - l.state.p_pos)
+
+            if not hasattr(world, "prev_total_dist") or world.prev_total_dist is None:
+                world.prev_total_dist = total_dist
+
+            progress = world.prev_total_dist - total_dist
+            world.prev_total_dist = total_dist
+
+            # Penalize collisions
+            collision_penalty = 0
+            for i, a1 in enumerate(world.agents):
+                for j, a2 in enumerate(world.agents):
+                    if i != j and self.is_collision(a1, a2):
+                        collision_penalty -= 1
+
+            return progress + collision_penalty
+
+
+        def partially_shared():
+            # Individual component
+            individual_rewards = []
+            for agent in world.agents:
+                dists = [np.linalg.norm(agent.state.p_pos - l.state.p_pos) for l in world.landmarks]
+                min_dist = min(dists)
+                individual_rewards.append(-min_dist)
+
+            # Shared component (mean distance to landmarks)
+            total_dist = 0
+            for l in world.landmarks:
+                for a in world.agents:
+                    total_dist += np.linalg.norm(a.state.p_pos - l.state.p_pos)
+
+            if not hasattr(world, "prev_total_dist") or world.prev_total_dist is None:
+                world.prev_total_dist = total_dist
+
+            shared_progress = world.prev_total_dist - total_dist
+            world.prev_total_dist = total_dist
+
+            # Coverage bonus: reward if each landmark is closest to a different agent
+            closest_agents = [np.argmin([np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]) for l in world.landmarks]
+            coverage_bonus = len(set(closest_agents))  # Higher if agents spread out
+
+            return 0.6 * individual_rewards[world.agents.index(agent)] + 0.4 * (shared_progress + coverage_bonus * 0.1)
 
         if self.reward_type == "individual":
-            return indiv_reward
-        
+            return individual()
         elif self.reward_type == "shared":
-            # Everyone gets the same reward: average it across agents
-            total_rewards = []
-            for ag in world.agents:
-                reward = 0
-                for l in world.landmarks:
-                    dists = [np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]
-                    reward += -min(dists)
-                if ag.collide:
-                    for other in world.agents:
-                        if other is not ag and self.is_collision(ag, other):
-                            reward -= 1
-                total_rewards.append(reward)
-            return np.mean(total_rewards)
-        
+            return shared()
         elif self.reward_type == "partially_shared":
             # Blend individual and shared rewards
             # 0.5 * individual + 0.5 * shared
-            total_rewards = []
-            for ag in world.agents:
-                reward = 0
-                for l in world.landmarks:
-                    dists = [np.linalg.norm(a.state.p_pos - l.state.p_pos) for a in world.agents]
-                    reward += -min(dists)
-                if ag.collide:
-                    for other in world.agents:
-                        if other is not ag and self.is_collision(ag, other):
-                            reward -= 1
-                total_rewards.append(reward)
-            shared_reward = np.mean(total_rewards)
-            return 0.5 * indiv_reward + 0.5 * shared_reward
-
+            return partially_shared()
+        elif self.reward_type == "original":
+            rew = 0
+            for l in world.landmarks:
+                dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos)))
+                         for a in world.agents]
+                rew -= min(dists)
+                
+            if agent.collide:
+                for a in world.agents:
+                    if self.is_collision(a, agent):
+                        rew -= 1
+            return rew
         else:
             raise ValueError(f"Unknown reward_type: {self.reward_type}")   
     # NEW END

@@ -1,0 +1,129 @@
+ Scenario simple_spread Algo mappo Exp partially_shared updates 0/125 episodes, total num timesteps 800/100000, FPS 404.
+
+average episode rewards is -9.417508125305176
+policy entropy is 1.6061816573143006
+eval average episode rewards of agent: -12.619528899850257
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 5/125 episodes, total num timesteps 4800/100000, FPS 419.
+
+average episode rewards is -8.114076614379883
+policy entropy is 1.576020848751068
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 10/125 episodes, total num timesteps 8800/100000, FPS 511.
+
+average episode rewards is -6.839717864990234
+policy entropy is 1.5470507502555848
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 15/125 episodes, total num timesteps 12800/100000, FPS 503.
+
+average episode rewards is -7.000908851623535
+policy entropy is 1.51136714220047
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 20/125 episodes, total num timesteps 16800/100000, FPS 518.
+
+average episode rewards is -6.983243465423584
+policy entropy is 1.4730740229288737
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 25/125 episodes, total num timesteps 20800/100000, FPS 508.
+
+average episode rewards is -8.397533416748047
+policy entropy is 1.4314993937810263
+eval average episode rewards of agent: 1.3760322818962116
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 30/125 episodes, total num timesteps 24800/100000, FPS 527.
+
+average episode rewards is -7.784792900085449
+policy entropy is 1.366504927476247
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 35/125 episodes, total num timesteps 28800/100000, FPS 524.
+
+average episode rewards is -6.675398349761963
+policy entropy is 1.2959771196047465
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 40/125 episodes, total num timesteps 32800/100000, FPS 538.
+
+average episode rewards is -4.8035502433776855
+policy entropy is 1.1995249470074971
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 45/125 episodes, total num timesteps 36800/100000, FPS 534.
+
+average episode rewards is -5.022518157958984
+policy entropy is 1.1149992227554322
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 50/125 episodes, total num timesteps 40800/100000, FPS 545.
+
+average episode rewards is -4.791497707366943
+policy entropy is 1.033614695072174
+eval average episode rewards of agent: -1.648263065651985
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 55/125 episodes, total num timesteps 44800/100000, FPS 542.
+
+average episode rewards is -4.1169753074646
+policy entropy is 0.949631275733312
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 60/125 episodes, total num timesteps 48800/100000, FPS 550.
+
+average episode rewards is -5.5228376388549805
+policy entropy is 0.8707527180512746
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 65/125 episodes, total num timesteps 52800/100000, FPS 548.
+
+average episode rewards is -4.579498767852783
+policy entropy is 0.7931851426760356
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 70/125 episodes, total num timesteps 56800/100000, FPS 555.
+
+average episode rewards is -4.901242733001709
+policy entropy is 0.7612326780954997
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 75/125 episodes, total num timesteps 60800/100000, FPS 559.
+
+average episode rewards is -3.9260871410369873
+policy entropy is 0.6445211072762808
+eval average episode rewards of agent: -1.930899922482593
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 80/125 episodes, total num timesteps 64800/100000, FPS 561.
+
+average episode rewards is -4.315652847290039
+policy entropy is 0.6813297986984252
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 85/125 episodes, total num timesteps 68800/100000, FPS 567.
+
+average episode rewards is -3.8956496715545654
+policy entropy is 0.5901824275652567
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 90/125 episodes, total num timesteps 72800/100000, FPS 565.
+
+average episode rewards is -5.264400482177734
+policy entropy is 0.7030413150787354
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 95/125 episodes, total num timesteps 76800/100000, FPS 571.
+
+average episode rewards is -5.536960601806641
+policy entropy is 0.6065222163995106
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 100/125 episodes, total num timesteps 80800/100000, FPS 569.
+
+average episode rewards is -4.223999977111816
+policy entropy is 0.48196497857570647
+eval average episode rewards of agent: -2.0163692017975796
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 105/125 episodes, total num timesteps 84800/100000, FPS 575.
+
+average episode rewards is -4.7032246589660645
+policy entropy is 0.5169966518878937
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 110/125 episodes, total num timesteps 88800/100000, FPS 573.
+
+average episode rewards is -3.6338183879852295
+policy entropy is 0.5151734371980031
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 115/125 episodes, total num timesteps 92800/100000, FPS 576.
+
+average episode rewards is -3.4900214672088623
+policy entropy is 0.47300992111365
+
+ Scenario simple_spread Algo mappo Exp partially_shared updates 120/125 episodes, total num timesteps 96800/100000, FPS 579.
+
+average episode rewards is -5.337104797363281
+policy entropy is 0.5718981782595317

@@ -15,7 +15,6 @@ from onpolicy.envs.mpe.MPE_env import MPEEnv
 from onpolicy.envs.env_wrappers import SubprocVecEnv, DummyVecEnv
 
 def make_render_env(all_args):
-    print(f"Render environment )
     def get_env_fn(rank):
         def init_env():
             if all_args.env_name == "MPE":
@@ -36,7 +35,7 @@ def parse_args(args, parser):
     parser.add_argument('--scenario_name', type=str, default='simple_spread', help="Which scenario to run on")
     parser.add_argument("--num_landmarks", type=int, default=3)
     parser.add_argument('--num_agents', type=int, default=2, help="number of players")
-    parser.add_argument('--reward_type', type=str, default='individual', choices = ['individual', 'shared', 'partially_shared'], help = "Reward structure to use")
+    parser.add_argument('--reward_type', type=str, default='individual', choices = ['individual', 'shared', 'partially_shared', 'original'], help = "Reward structure to use")
     parser.add_argument('--run_number', type=int, default="-1")
     all_args = parser.parse_known_args(args)[0]
     
@@ -110,7 +109,7 @@ def main(args):
 
     # run_dir = run_dir / curr_run
     # NEW:
-    run_dir = run_dir / curr_run / "renders"
+    run_dir = run_dir / curr_run
     all_args.model_dir = f"{all_args.model_dir}/{curr_run}/models"
     # NEW END
     
@@ -141,6 +140,7 @@ def main(args):
 
     # NEW:
     print(f"DEBUGGING ALL ARGS: {all_args.model_dir} \n (render_mpe.py)")
+    print(f"Run dir: {run_dir}")
     # NEW END
 
     # run experiments
